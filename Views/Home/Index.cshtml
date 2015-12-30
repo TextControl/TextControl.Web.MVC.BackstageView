@@ -1,0 +1,146 @@
+﻿@using TXTextControl.Web
+@using TXTextControl.Web.MVC
+
+@Html.TXTextControl().TextControl(settings =>
+{
+    settings.Dock = DockStyle.Window;
+}).Render()
+
+<style>
+    .backstage {
+        background-color: white;
+        position: fixed;
+        top: 0;
+        left: -9000px;
+        width: 100%;
+        height: 100%;
+        z-index: 999;
+        -webkit-transition: left 0.3s, opacity 0.3s, -webkit-transform 2s;
+        transition: left 0.3s, opacity 0.3s, transform 2s;
+    }
+
+    .backstage h1,h2,h3,p,a {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-weight: 300;
+    }
+
+    .backstage .menu {
+        background-color: #2B579A;
+        width: 130px;
+        float: left;
+        height: 100%;
+        margin-right: 50px;
+        color: white;
+    }
+
+    .menu img {
+        margin-top: 10px;
+        padding-left: 20px;
+        padding-top: 5px;
+    }
+
+    .menu a {
+        display: block;
+    }
+
+    .menu ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        padding-top: 20px;
+    }
+
+    .menu li a {
+        display: block;
+        color: white;
+        padding: 8px 0 8px 20px;
+        text-decoration: none;
+    }
+
+    .menu li a:hover {
+        background-color: #19478a;
+        color: white;
+    }
+
+    .active {
+        background-color: #3e6db5;
+    }
+
+    .backstage .title {
+        background-color: white;
+        width: 100%;
+        padding: 10px;
+        padding-left: 130px;
+    }
+
+     .backstage .stage {
+        background-color: white;
+        width: auto;
+        float: left;
+        height: 100%;
+    }
+</style>
+
+<div id="backstage" class="backstage">
+    <div class="menu">
+        <a onclick="animateBackstage(1)" href="#"><img src="~/img/back.png" /></a>
+        <ul id="menu">
+            <li><a id="View1" onclick="switchBackstageView('View1')" href="#">View 1</a></li>
+            <li><a id="View2" onclick="switchBackstageView('View2')" href="#">View 2</a></li>
+            <li><a id="View3" onclick="switchBackstageView('View3')" href="#">View 3</a></li>
+            <li><a id="View4" onclick="switchBackstageView('View4')" href="#">View 3</a></li>
+        </ul>
+    </div>
+    <div id="title" class="title"></div>
+    <div id="stage" class="stage"></div>
+</div>
+
+<script>
+    
+    TXTextControl.addEventListener("ribbonTabsLoaded", function (e) {
+        // remove the original file menu
+        $("#fileMenu").remove();
+
+        // open the new menu when the FILE menu is clicked
+        $("#tabFile").on("click", function () {
+            animateBackstage(0);
+        });
+
+        animateBackstage(1);
+    });
+
+    window.addEventListener("resize", resizeBackstage);
+
+    // adapt the backstage size when the window is resized
+    function resizeBackstage() {
+        if($("#backstage").css("opacity") == "0") {
+            $("#backstage").css("left", "-" + $("#backstage").css("width"));
+        }
+    }
+
+    // fade in and out the backstage menu
+    function animateBackstage(direction) {
+        if (direction == 1) {
+            $("#backstage").css("opacity", "0").css("left", "-" + $("#backstage").css("width"));
+            switchBackstageView("View1");
+        }
+        else {
+            $("#backstage").css("opacity", "1").css("left", "0");
+            switchBackstageView("View1");
+        }
+    }
+
+    // switch the backstage view
+    function switchBackstageView(view) {
+        $('#menu li a').each(function () {
+            $(this).removeClass("active");
+        });
+
+        // add the title
+        $("#title").html("<h1>" + view  + "</h1>");
+        $("#" + view).addClass("active");
+
+        // load the partial view dynamically
+        $("#stage").load("/home/getview", { viewName: view });
+    }
+</script>
